@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Food Menu</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🍽️ Food Menu</h1>
+    <nav>
+      <a href="/login.html">Login</a>
+      <a href="/register.html">Register</a>
+      <a href="/cart.html">Cart (<span id="cart-count">0</span>)</a>
+      <a href="/add-food.html">Add Food</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="menu" class="menu-container"></div>
+  </main>
+
+  <script>
+    async function loadMenu() {
+      const res = await fetch('/api/foods');
+      const foods = await res.json();
+      const menuDiv = document.getElementById('menu');
+      menuDiv.innerHTML = foods.map(f => `
+        <div class="food-card" onclick="viewDetails('${f._id}')">
+          <h3>${f.name}</h3>
+          <p>${f.description}</p>
+          <p>Category: ${f.category}</p>
+          <p>Price: ₹${f.price}</p>
+        </div>
+      `).join('');
+    }
+
+    function viewDetails(id) {
+      window.location.href = `/details.html?id=${id}`;
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      document.getElementById('cart-count').textContent = cart.length;
+    }
+
+    loadMenu();
+    updateCartCount();
+  </script>
+</body>
+</html>
