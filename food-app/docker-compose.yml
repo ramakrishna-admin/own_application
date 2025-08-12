@@ -1,12 +1,15 @@
 version: '3.8'
 services:
   mongo:
-    image: mongo:6
+    image: ramakrishna737/myown:v1
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "3000:3000"
     volumes:
       - mongo-data:/data/db
+    deploy:
+      replicas: 2
 
 volumes:
   mongo-data:
+
