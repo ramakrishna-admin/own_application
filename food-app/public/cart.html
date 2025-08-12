@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Cart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Your Cart</h1>
+    <nav>
+      <a href="/">Menu</a>
+      <a href="/login.html">Login</a>
+      <a href="/register.html">Register</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="cart-list"></div>
+    <div id="cart-actions" style="text-align:center; margin-top:20px;">
+      <p>Total: ₹<span id="total">0</span></p>
+      <button id="placeOrder">Place Order</button>
+    </div>
+  </main>
+
+  <script>
+    function renderCart() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const list = document.getElementById('cart-list');
+      if (!cart.length) {
+        list.innerHTML = '<p>Your cart is empty.</p>';
+        document.getElementById('total').textContent = '0';
+        return;
+      }
+      let html = '<ul class="cart-ul">';
+      let total = 0;
+      cart.forEach((it, idx) => {
+        total += it.price * (it.quantity || 1);
+        html += `<li>
+          <strong>${it.name}</strong> - ₹${it.price} x ${it.quantity || 1}
+          <button onclick="removeItem(${idx})">Remove</button>
+        </li>`;
+      });
+      html += '</ul>';
+      list.innerHTML = html;
+      document.getElementById('total').textContent = total;
+    }
+
+    function removeItem(idx) {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      cart.splice(idx, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    document.getElementById('placeOrder').addEventListener('click', async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return alert('Please login or register before placing order.');
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      if (!cart.length) return alert('Cart is empty');
+
+      const res = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, items: cart })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('Order placed! Order ID: ' + data.orderId);
+        localStorage.removeItem('cart');
+        renderCart();
+      } else {
+        alert(data.error || 'Order failed');
+      }
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>
