@@ -4,7 +4,7 @@ services:
     image: ramakrishna737/myown:v1
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3000:80"
     volumes:
       - mongo-data:/data/db
     deploy:
@@ -12,4 +12,5 @@ services:
 
 volumes:
   mongo-data:
+
 
